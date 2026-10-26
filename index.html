@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nily AI</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#090d18;color:#eef3ff;font-family:Arial,sans-serif}
+header{padding:22px;text-align:center;background:#121a2b;border-bottom:1px solid #283652}
+h1{margin:0;color:#65c8ff;font-size:32px}
+header p{color:#aab8d0}
+main{max-width:650px;margin:auto;padding:18px}
+#chat{height:48vh;min-height:260px;overflow:auto;padding:12px;background:#111a2b;border-radius:14px}
+.msg{padding:12px;margin:10px 0;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.bot{background:#202e46}
+.user{background:#174b70;text-align:right}
+.controls{display:flex;gap:8px;margin-top:12px}
+input{min-width:0;flex:1;padding:14px;border-radius:10px;border:1px solid #344866;background:#111a2b;color:white}
+button{padding:12px;border:0;border-radius:10px;background:#35aaf0;color:#06111d;font-weight:bold}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions button{background:#202e46;color:white}
+small{display:block;color:#aab8d0;margin-top:12px}
+</style>
+</head>
+<body>
+<header>
+<h1>✦ Nily AI</h1>
+<p>Your personal assistant</p>
+</header>
+<main>
+<div id="chat" aria-live="polite">
+<div class="msg bot">Hey bro! I'm Nily. 👋
+
+I can chat, speak replies, listen to your voice, and help with coding.
+
+Connect an AI service later to enable intelligent AI answers.</div>
+</div>
+<div class="controls">
+<input id="question" placeholder="Ask Nily something..." />
+<button onclick="send()">Send</button>
+</div>
+<div class="actions">
+<button onclick="listen()">🎙️ Speak</button>
+<button onclick="speakLast()">🔊 Speak reply</button>
+<button onclick="openApp()">📱 Open app</button>
+<button onclick="coding()">💻 Coding help</button>
+</div>
+<small id="status">Starter mode • Internet and AI connection needed for full answers.</small>
+</main>
+<script>
+const chat=document.getElementById('chat');
+const input=document.getElementById('question');
+let lastReply="Hey bro! I'm Nily, your personal assistant.";
+function add(text,who){
+const d=document.createElement('div');
+d.className='msg '+who;
+d.textContent=text;
+chat.appendChild(d);
+chat.scrollTop=chat.scrollHeight;
+}
+function reply(text){lastReply=text;add(text,'bot');}
+function send(){
+const q=input.value.trim();
+if(!q)return;
+input.value='';
+add(q,'user');
+const s=q.toLowerCase();
+if(s.includes('hello')||s.includes('hi nily')){
+reply("Hey bro! 👋 I'm here. Ask me a question or use the Speak button.");
+}else if(s.includes('your name')){
+reply("My name is Nily, your personal assistant.");
+}else if(s.includes('time')){
+reply("Your phone's current time is "+new Date().toLocaleTimeString()+".");
+}else if(s.includes('code')||s.includes('coding')){
+reply("I can help with coding! Tell me what you want to build. Full AI coding answers need an AI service connection.");
+}else{
+reply("I received your question: \""+q+"\"\n\nI'm currently in starter mode. To answer general questions intelligently, we need to connect an AI service securely.");
+}
+}
+input.addEventListener('keydown',e=>{if(e.key==='Enter')send()});
+function listen(){
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){document.getElementById('status').textContent='Voice recognition is not supported in this browser. Try Chrome.';return;}
+const r=new SR();
+r.lang='en-IN';
+r.onstart=()=>document.getElementById('status').textContent='Listening... speak now';
+r.onresult=e=>{input.value=e.results[0][0].transcript;send()};
+r.onerror=()=>document.getElementById('status').textContent='Voice failed. Allow microphone permission and try again.';
+r.start();
+}
+function speakLast(){
+if(!('speechSynthesis' in window)){alert('Speech is not supported in this browser.');return;}
+speechSynthesis.cancel();
+speechSynthesis.speak(new SpeechSynthesisUtterance(lastReply));
+}
+function openApp(){
+const name=prompt('Enter an app name, for example YouTube');
+if(!name)return;
+const apps={'youtube':'https://www.youtube.com','google':'https://www.google.com','whatsapp':'https://www.whatsapp.com','github':'https://github.com'};
+if(apps[name.toLowerCase()])location.href=apps[name.toLowerCase()];
+else alert('This starter can open selected websites only. Native app launching needs an Android app.');
+}
+function coding(){
+input.value='Help me with coding: ';
+input.focus();
+}
+</script>
+</body>
+</html>
